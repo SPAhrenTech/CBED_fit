@@ -68,6 +68,28 @@ def zip_params(w):
                     "increment": (10 ** s) if s is not None and s == s else None, "del": d})
     return out
 
+def clean(x):  # NaN/inf are not valid JSON
+    if isinstance(x, float) and (x != x or x in (float("inf"), float("-inf"))):
+        return None
+    if isinstance(x, dict):
+        return {k: clean(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [clean(v) for v in x]
+    return x
+
+def export_constants():
+    """Physical constants and material tables from root:Constants."""
+    base = f"{SRC}/Constants"
+    g = lambda *p: val(wave(os.path.join(base, *p) + ".ibw"))
+    c = {"x": g("xVect"), "y": g("yVect"), "z": g("zVect")}
+    c.update(read_vars(f"{base}/variables")[0])          # hc, mc2
+    c["eDiff"] = {n[:-4]: g("eDiff", n[:-4]) for n in os.listdir(f"{base}/eDiff") if n.endswith(".ibw") and "desc" not in n}
+    mp = {n[:-4]: g("materProps", n[:-4]) for n in os.listdir(f"{base}/materProps") if n.endswith(".ibw")}
+    c["materProps"] = mp
+    types = g("materTypes", "title")
+    c["materTypes"] = {i: {"name": t, **{n[:-4]: g("materTypes", t, n[:-4]) for n in os.listdir(f"{base}/materTypes/{t}") if n.endswith(".ibw")}} for i, t in enumerate(types)}
+    return c
+
 def main():
     names, prefixes = read_group_meta()
     gi = {n: i for i, n in enumerate(names)}
@@ -162,15 +184,8 @@ def main():
             (report["staleDependents"] if d not in ids else report["missingDependents"]).append([o["id"], d])
     project["integrity"] = report
     os.makedirs(OUT, exist_ok=True)
-    def clean(x):  # NaN/inf are not valid JSON
-        if isinstance(x, float) and (x != x or x in (float("inf"), float("-inf"))):
-            return None
-        if isinstance(x, dict):
-            return {k: clean(v) for k, v in x.items()}
-        if isinstance(x, list):
-            return [clean(v) for v in x]
-        return x
     project = clean(project)
+    json.dump(clean(export_constants()), open(f"{OUT}/constants.json", "w"), indent=1)
     json.dump(project, open(f"{OUT}/project.json", "w"), indent=1)
     json.dump(schema, open(f"{OUT}/schema.json", "w"), indent=1)
     print(f"{len(project['objects'])} objects")

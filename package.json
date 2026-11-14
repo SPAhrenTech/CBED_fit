@@ -1,0 +1,10 @@
+{
+  "name": "cbed-fit",
+  "private": true,
+  "type": "module",
+  "description": "Web port of the CBED_fit Igor Pro experiment",
+  "scripts": {
+    "test": "node --test test/",
+    "extract": "python3 tools/extract_project.py \"CBED_fit Folder\" web/data"
+  }
+}
