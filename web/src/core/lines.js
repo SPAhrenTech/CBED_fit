@@ -72,3 +72,28 @@ export function findHklFromLine(m, delR, pOrN, Nz) {
   const G = [(C - gxy ** 2 / 2) / kxi, (C - gxy ** 2 / 2) / kyi, gz];
   return matvec(m.UTM, G);
 }
+
+/**
+ * Pairs of marked lines whose intersection (after undoing the eccentricity) lies inside the pattern disk
+ * (port of SetFitInterPairs). The Igor loop tested the Laue-zone range on line i again for line j; here j is tested.
+ * expt: {hklMat, delRMat}. Returns [[i, j], ...].
+ */
+export function interPairs(m, expt, { Nmin = 1, Nmax = 1 } = {}, { igorCompat = false } = {}) {
+  const rBeam = [m.xZone + m.dxBeam, m.yZone + m.dyBeam];
+  const rad = m.L * Math.tan(m.alpha / 1000);
+  const N = expt.hklMat.map((h) => dot(h, m.uvwz));
+  const und = expt.delRMat.map((d) => translateDel(transformDel(translateDel(d, rBeam, -1), m.EccIMat), rBeam));
+  const out = [];
+  for (let i = 0; i < und.length; i++) {
+    if (N[i] < Nmin || N[i] > Nmax) continue;
+    for (let j = i + 1; j < und.length; j++) {
+      if (igorCompat ? false : (N[j] < Nmin || N[j] > Nmax)) continue;
+      const a = und[i], b = und[j];
+      const den = a[0] * b[1] - a[1] * b[0];
+      const n1 = a[0] ** 2 + a[1] ** 2, n2 = b[0] ** 2 + b[1] ** 2;
+      const p = [(n1 * b[1] - a[1] * n2) / den, (a[0] * n2 - n1 * b[0]) / den];
+      if (Math.hypot(p[0] - rBeam[0], p[1] - rBeam[1]) <= rad) out.push([i, j]);
+    }
+  }
+  return out;
+}

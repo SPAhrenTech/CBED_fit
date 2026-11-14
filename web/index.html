@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CBED Fit</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <strong>CBED Fit</strong>
+  <label class="btn">Open image<input id="open-image" type="file" accept=".tif,.tiff,.png,.jpg,.jpeg" hidden></label>
+  <label class="btn">Open project<input id="open-project" type="file" accept=".json" hidden></label>
+  <button id="save">Save project</button>
+  <span class="sep"></span>
+  <button data-tool="pan" class="on" title="Pan and select (V)">Pan</button>
+  <button data-tool="mark" title="Mark a line (M)">Mark line</button>
+  <label><input id="snap" type="checkbox" checked> snap to ridge</label>
+  <label><input id="dark" type="checkbox" checked> dark lines</label>
+  <span class="sep"></span>
+  <label><input data-show="image" type="checkbox" checked> image</label>
+  <label><input data-show="sim" type="checkbox" checked> simulation</label>
+  <label><input data-show="marked" type="checkbox" checked> marked</label>
+  <label><input data-show="labels" type="checkbox" checked> hkl</label>
+  <label><input data-show="disk" type="checkbox" checked> disk</label>
+  <span class="sep"></span>
+  <label class="inline">black <input id="lo" type="range" min="0" max="1" step="0.01" value="0"></label>
+  <label class="inline">white <input id="hi" type="range" min="0" max="1" step="0.01" value="1"></label>
+  <button id="fitview" title="Fit image to window (F)">Fit view</button>
+  <span id="coords"></span>
+</header>
+<main>
+  <section id="view"><canvas id="canvas"></canvas></section>
+  <aside>
+    <nav><button data-tab="params" class="on">Parameters</button><button data-tab="lines">Lines</button><button data-tab="fit">Fit</button></nav>
+    <div id="tab-params" class="tab"></div>
+    <div id="tab-lines" class="tab" hidden></div>
+    <div id="tab-fit" class="tab" hidden></div>
+  </aside>
+</main>
+<script type="module" src="src/app/main.js"></script>
+</body>
+</html>

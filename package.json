@@ -5,6 +5,7 @@
   "description": "Web port of the CBED_fit Igor Pro experiment",
   "scripts": {
     "test": "node --test test/",
-    "extract": "python3 tools/extract_project.py \"CBED_fit Folder\" web/data"
+    "extract": "python3 tools/extract_project.py \"CBED_fit Folder\" web/data",
+    "start": "python3 -m http.server 8080 -d web"
   }
 }
