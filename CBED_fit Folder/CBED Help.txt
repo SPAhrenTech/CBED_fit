@@ -1,0 +1,4 @@
+film info
+offcut (deg): miscut angle
+in-plane symmetry (0,1): Is in-plane strain symmetric?
+no shear(0,1): Shear strain?
