@@ -1,0 +1,939 @@
+{
+ "groups": {
+  "Beam": {
+   "index": 0,
+   "prefix": "b",
+   "labels": {
+    "infoLabel": [
+     "dx(pix)",
+     "dy(pix)",
+     "alpha(mrad)"
+    ],
+    "prefLabel": [
+     "E(KeV)",
+     "dx(pix)",
+     "dy(pix)",
+     "alpha(mrad)"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": [
+    200.0,
+    1.0,
+    0.1,
+    30.0
+   ],
+   "defaultVars": {
+    "tableKey": -1,
+    "status": 0
+   },
+   "defaultParams": [
+    {
+     "label": "E (KeV)",
+     "value": 202.67363928168797,
+     "hold": true,
+     "tol": 0.01,
+     "step": -1.0,
+     "increment": 0.1,
+     "del": 2.0633219943243857
+    }
+   ],
+   "defaultWaves": [
+    "keyList",
+    "parDel",
+    "parHold",
+    "parLabel",
+    "parStep",
+    "parTol",
+    "parVal",
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {}
+  },
+  "Experiment": {
+   "index": 1,
+   "prefix": "e",
+   "labels": {
+    "infoLabel": [
+     "excess"
+    ],
+    "prefLabel": [
+     "excess"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": [
+    0.0
+   ],
+   "defaultVars": {
+    "tableKey": 0,
+    "status": 1
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "delRMat",
+    "hklMat",
+    "infoVal",
+    "interRMat",
+    "interRhklList",
+    "pointRMat",
+    "pointRhklList",
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {}
+  },
+  "Model": {
+   "index": 2,
+   "prefix": "m",
+   "labels": {
+    "calcValLabel": [
+     "dE1"
+    ],
+    "flagLabel": [
+     "dyn_corr"
+    ],
+    "infoLabel": [
+     "dyn_correction",
+     "gmax (nm^-1)",
+     "thresh",
+     "max_beams",
+     "xb (pix)",
+     "yb (pix)",
+     "alpha(mrad)"
+    ],
+    "prefLabel": [
+     "default L",
+     "dyn correction",
+     "gmax(1/nm)",
+     "thresh(1/nm)",
+     "max_beams",
+     "alpha(mrad)"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "tableKey": 17,
+    "layerKey": 0,
+    "beamKey": 0,
+    "status": 0
+   },
+   "defaultParams": [
+    {
+     "label": "L (pix)",
+     "value": 61746.09001730837,
+     "hold": false,
+     "tol": 1e-05,
+     "step": 5.0,
+     "increment": 100000.0,
+     "del": 35.41513990075006
+    },
+    {
+     "label": "phi (deg)",
+     "value": 180.4982448611943,
+     "hold": false,
+     "tol": 1e-06,
+     "step": -2.0,
+     "increment": 0.01,
+     "del": 0.030041113957355325
+    },
+    {
+     "label": "xc (pix)",
+     "value": 396.1246569179927,
+     "hold": false,
+     "tol": 0.0001,
+     "step": 1.0,
+     "increment": 10.0,
+     "del": 0.17257960999275435
+    },
+    {
+     "label": "yc (pix)",
+     "value": 615.7776212253364,
+     "hold": false,
+     "tol": 0.0001,
+     "step": -5.0,
+     "increment": 1e-05,
+     "del": 0.18547179161332344
+    },
+    {
+     "label": "eccX",
+     "value": 0.015306249774555775,
+     "hold": false,
+     "tol": 1e-06,
+     "step": -1.0,
+     "increment": 0.1,
+     "del": 0.0005485379253436677
+    },
+    {
+     "label": "eccY",
+     "value": 0.009953195262812325,
+     "hold": false,
+     "tol": 1e-06,
+     "step": -2.0,
+     "increment": 0.01,
+     "del": 0.0005258473231203769
+    }
+   ],
+   "defaultWaves": [
+    "EccIMat",
+    "EccITMat",
+    "EccMat",
+    "MIMat",
+    "MITMat",
+    "MMat",
+    "UMat",
+    "UTMat",
+    "UpMat",
+    "UpTMat",
+    "VMat",
+    "VTMat",
+    "VpMat",
+    "VpTMat",
+    "calcVal",
+    "calcValLabel",
+    "dCoordMat",
+    "hkl0Mat",
+    "hklxVect",
+    "infoVal",
+    "keyList",
+    "occVect",
+    "parDel",
+    "parHold",
+    "parLabel",
+    "parStep",
+    "parTol",
+    "parVal",
+    "paraVect",
+    "phiIMat",
+    "phiMat",
+    "primTMat",
+    "refGroupKey",
+    "refObjectKey",
+    "spcVect",
+    "uvwzVect",
+    "vertVect",
+    "zoneVect"
+   ],
+   "links": {
+    "layerKey": "Layer",
+    "beamKey": "Beam"
+   }
+  },
+  "Simulation": {
+   "index": 3,
+   "prefix": "s",
+   "labels": {
+    "infoLabel": [
+     "Nzmin",
+     "Nzmax",
+     "max_lines",
+     "dynamical",
+     "not used",
+     "top(pix)",
+     "left(pix)",
+     "bottom(pix)",
+     "right(pix)",
+     "gmax",
+     "excess",
+     "# of suppl lines"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "tableKey": -1,
+    "modelKey": 12,
+    "vChanged": 1,
+    "status": 0
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "delrMat",
+    "hklMat",
+    "infoVal",
+    "magUVect",
+    "rDelMat",
+    "refGroupKey",
+    "refObjectKey",
+    "supMat"
+   ],
+   "links": {
+    "modelKey": "Model"
+   }
+  },
+  "Fit": {
+   "index": 4,
+   "prefix": "f",
+   "labels": {
+    "keyListLabel": [
+     "experiment",
+     "model",
+     "table"
+    ],
+    "infoLabel": [
+     "Nzmin",
+     "Nzmax",
+     "xc",
+     "yc",
+     "include",
+     "method"
+    ],
+    "prefLabel": [
+     "Nzmin(fit)",
+     "Nzmax(fit)",
+     "xc(pix)",
+     "yc(pix)",
+     "(dx,dy)",
+     "intersections"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Find",
+     "Print",
+     "Delete"
+    ]
+   },
+   "prefs": [
+    1.0,
+    1.0,
+    256.0,
+    256.0,
+    1.0,
+    1.0
+   ],
+   "defaultVars": {
+    "tableKey": 6,
+    "modelKey": 1,
+    "exptKey": 32,
+    "status": 1
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "delList",
+    "delR0Mat",
+    "delRMat",
+    "exptDelRMat",
+    "exptInterRMat",
+    "fitDelRMat",
+    "fitInterRMat",
+    "infoVal",
+    "interList",
+    "interRMat",
+    "keyList",
+    "pointRMat",
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {
+    "modelKey": "Model",
+    "exptKey": "Experiment"
+   }
+  },
+  "Image": {
+   "index": 5,
+   "prefix": "i",
+   "labels": {
+    "infoLabel": [
+     ""
+    ],
+    "actionNameList": [
+     "Open",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "fitKey": -1,
+    "tableKey": -1,
+    "status": 0
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "infoVal",
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {
+    "fitKey": "Fit"
+   }
+  },
+  "Layer": {
+   "index": 6,
+   "prefix": "l",
+   "labels": {
+    "epsLabel": [
+     "eps11",
+     "eps22",
+     "eps33",
+     "gamma23",
+     "gamma31",
+     "gamma12"
+    ],
+    "actionNameList": [
+     "New",
+     "Import",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "tableKey": -1,
+    "materKey": 1,
+    "structType": 0,
+    "status": 1
+   },
+   "defaultParams": [
+    {
+     "label": "a (nm)",
+     "value": 0.56553,
+     "hold": true,
+     "tol": 1e-05,
+     "step": null,
+     "increment": null,
+     "del": 0.0
+    }
+   ],
+   "defaultWaves": [
+    "AMat",
+    "ApMat",
+    "BMat",
+    "BpMat",
+    "C2DMat",
+    "CMat",
+    "deforMat",
+    "depsVect",
+    "epsHold",
+    "epsVect",
+    "hklmVect",
+    "hklxVect",
+    "infoLabel",
+    "infoVal",
+    "keyList",
+    "parDel",
+    "parHold",
+    "parLabel",
+    "parStep",
+    "parTol",
+    "parVal",
+    "refGroupKey",
+    "refObjectKey",
+    "uvwzVect"
+   ],
+   "links": {
+    "materKey": "Material"
+   }
+  },
+  "Table": {
+   "index": 7,
+   "prefix": "t",
+   "labels": {
+    "actionNameList": [
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "sourceType": -1,
+    "sourceKey": -1,
+    "vChanged": 1,
+    "status": 0
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {}
+  },
+  "Graph": {
+   "index": 8,
+   "prefix": "g",
+   "labels": {
+    "valListLabel": [
+     "show coords",
+     "show scale",
+     "scale length",
+     "scale units",
+     "scale aspect",
+     "line width",
+     "show fill",
+     "line red",
+     "line green",
+     "line blue",
+     "fill red",
+     "fill green",
+     "fill blue",
+     "show label",
+     "text red",
+     "text green",
+     "text blue",
+     "text size",
+     "show axes"
+    ],
+    "mouseCoordLabel": [
+     "mouseDownX",
+     "mouseDownY",
+     "xc0",
+     "yc0"
+    ],
+    "actionNameList": [
+     "New",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "defPlotKey": -1,
+    "tableKey": -1,
+    "modelKey": 29,
+    "status": 1
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "defPlotPars",
+    "keyList",
+    "mouseCoord",
+    "refGroupKey",
+    "refObjectKey",
+    "valList",
+    "xBounds",
+    "yBounds"
+   ],
+   "links": {
+    "defPlotKey": "Plot",
+    "modelKey": "Model"
+   }
+  },
+  "Dynamical": {
+   "index": 9,
+   "prefix": "d",
+   "labels": {
+    "actionNameList": [
+     "New",
+     "Import",
+     "Graph",
+     "Plot",
+     "Table",
+     "Rename",
+     "Delete",
+     "Calculate"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "tableKey": 91,
+    "modelKey": 1,
+    "modelK": -1,
+    "status": 0
+   },
+   "defaultParams": [
+    {
+     "label": "|g|Max",
+     "value": 50.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "|s|Max",
+     "value": 0.5,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "1/|Xsi.s|Min",
+     "value": 0.01,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "max. beams",
+     "value": 4.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "N_min",
+     "value": 0.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "N_max",
+     "value": 0.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "patch_max(pix)",
+     "value": 1.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    }
+   ],
+   "defaultWaves": [
+    "M_inverse",
+    "M_product",
+    "critVect",
+    "diskList",
+    "diskMat",
+    "diskVect",
+    "dynCalc",
+    "hklMat",
+    "infoLabel",
+    "infoVal",
+    "parLabel",
+    "parVal",
+    "refGroupKey",
+    "refObjectKey",
+    "supMat"
+   ],
+   "links": {
+    "modelKey": "Model"
+   }
+  },
+  "Hough": {
+   "index": 10,
+   "prefix": "h",
+   "labels": {
+    "keyListLabel": [
+     "graph"
+    ],
+    "infoLabel": [
+     "yTop",
+     "xLeft",
+     "yBottom",
+     "xRight",
+     "rRange",
+     "rSteps",
+     "tSteps",
+     "def line#",
+     "dxdef",
+     "dydef",
+     "defred",
+     "defgreen",
+     "defblue",
+     "defmarker",
+     "defsize"
+    ],
+    "prefLabel": [
+     "delx",
+     "dely",
+     "delstep",
+     "red",
+     "green",
+     "blue",
+     "marker",
+     "size",
+     "coords"
+    ]
+   },
+   "prefs": [
+    270.4273376464844,
+    141.1965789794922,
+    124.44444274902344,
+    380.5128173828125,
+    0.0,
+    0.0,
+    0.0,
+    3.0,
+    0.0
+   ],
+   "defaultVars": {
+    "vChanged": 1,
+    "status": 0
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {}
+  },
+  "Plot": {
+   "index": 11,
+   "prefix": "p",
+   "labels": {
+    "valListLabel": [
+     "line width",
+     "line style",
+     "marker",
+     "red",
+     "green",
+     "blue",
+     "show",
+     "size",
+     "reverse",
+     "brightness",
+     "contrast"
+    ],
+    "assetListLabel": [
+     "zone center",
+     "beam edge"
+    ],
+    "actionNameList": [
+     "Rename",
+     "Table",
+     "Delete",
+     "Move Forward",
+     "Move Back",
+     "Set Area",
+     "Identify"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "sourceType": 5,
+    "graphKey": 0,
+    "sourceKey": 41,
+    "subType": 0,
+    "vChanged": 1,
+    "tableKey": -1,
+    "status": 1
+   },
+   "defaultParams": [],
+   "defaultWaves": [
+    "assetFlag",
+    "assetLabel",
+    "refGroupKey",
+    "refObjectKey",
+    "valList"
+   ],
+   "links": {
+    "graphKey": "Graph"
+   }
+  },
+  "Analysis": {
+   "index": 12,
+   "prefix": "a",
+   "labels": {
+    "sigLabel": [
+     "sig (pix)",
+     "sig (nm)"
+    ],
+    "parLabel": [
+     "iters"
+    ],
+    "infoLabel": [
+     "nStatus",
+     "nData",
+     "nParam",
+     "FOM",
+     "nIters"
+    ],
+    "varyMessages": [
+     "",
+     "data points:  202",
+     "FOM: 50.393826",
+     "",
+     ""
+    ],
+    "actionNameList": [
+     "Evaluate",
+     "Vary"
+    ],
+    "tolLabel": [
+     "pixels",
+     "degrees",
+     "eccentricity",
+     "lattice constant (nm)",
+     "composition"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "status": 0
+   },
+   "defaultParams": [
+    {
+     "label": "",
+     "value": 20.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "",
+     "value": 149.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "",
+     "value": 0.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "",
+     "value": NaN,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "",
+     "value": 0.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    },
+    {
+     "label": "",
+     "value": 0.0,
+     "hold": true,
+     "tol": null,
+     "step": null,
+     "increment": null,
+     "del": 0
+    }
+   ],
+   "defaultWaves": [
+    "infoVal",
+    "parVal",
+    "refGroupKey",
+    "refObjectKey",
+    "sigVal"
+   ],
+   "links": {}
+  },
+  "Material": {
+   "index": 13,
+   "prefix": "r",
+   "labels": {
+    "actionNameList": [
+     "New",
+     "Import",
+     "Table",
+     "Rename",
+     "Delete"
+    ]
+   },
+   "prefs": null,
+   "defaultVars": {
+    "materType": 1,
+    "tableKey": -1,
+    "status": 1
+   },
+   "defaultParams": [
+    {
+     "label": "x",
+     "value": 1.0,
+     "hold": true,
+     "tol": 1e-06,
+     "step": -1.0,
+     "increment": 0.1,
+     "del": 0.0
+    },
+    {
+     "label": "y",
+     "value": 0.5,
+     "hold": true,
+     "tol": 1e-06,
+     "step": null,
+     "increment": null,
+     "del": 0.0
+    }
+   ],
+   "defaultWaves": [
+    "AMat",
+    "CMat",
+    "elemLabel",
+    "elemVal",
+    "infoLabel",
+    "infoVal",
+    "keyList",
+    "occVect",
+    "parDel",
+    "parHold",
+    "parLabel",
+    "parStep",
+    "parTol",
+    "parVal",
+    "primTMat",
+    "refGroupKey",
+    "refObjectKey"
+   ],
+   "links": {}
+  }
+ }
+}
