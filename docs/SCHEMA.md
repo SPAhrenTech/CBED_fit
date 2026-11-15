@@ -62,3 +62,10 @@ Table/Hough/Graph window state, Plot marker caches, Dynamical intensity maps, pe
 2. ~~`parStep`~~ resolved: log10 of the up/down arrow increment.
 3. `Model.keyList` / `Layer.keyList` (5 ints) look like indexes into `materProps`: used?
 4. Is a Model always a single Layer (`layerKey`) or can multi-layer stacks occur (Model has `uvwzVect`; Layer 0 looks like the substrate)?
+
+## Web project format (cbed-web)
+The web app saves the same object list (`objects`, each with `id`, `type`, `key`, `title`, `vars`, `params`, `info`,
+`waves`, `links`) plus `activeFitId` and `images: {ref: {width, height, type, b64}}`. New objects created in the app
+have these shapes (`web/src/core/factory.js`): `Image.vars.ref` names the entry in `images`; `Fit.info` holds
+`Nzmin/Nzmax/include/method`; `Model.waves` only needs `uvwzVect` and `hklxVect` (Igor's matrix caches are recomputed).
+Projects saved from the Igor export (no `images`) open with an empty image slot; use "Set image".

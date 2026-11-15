@@ -1,5 +1,5 @@
 // Project-level helpers: moving the layer strain parameters from Igor's arbitrary eigenvector basis to strain components.
-import { matmul, matvec, pinvLeft } from "./linalg.js";
+import { matvec } from "./linalg.js";
 import { buildMaterial, buildLayer, strainBasis } from "./crystal.js";
 
 const linkOf = (project, o, field) => { const l = o.links.find((x) => x.field === field); return l && project.objects.find((x) => x.id === l.to); };
@@ -16,8 +16,10 @@ export function reparametrizeLayerStrain(layer, mat, K) {
   const old = buildLayer(layer, M, { basis: layer.waves.epsVectL });        // current strain tensor and C2D
   const B = strainBasis(old.C2D, layer.vars.structType, layer.info["in-plane symmetry"], layer.info["no shear"]);
   const n = B[0].length;
-  const pinv = n ? pinvLeft(B) : null;
-  const coef = n ? matvec(pinv, old.epsVect) : [];
+  // The canonical basis makes the pivot strain components the parameters themselves, so keep exactly those. When the old
+  // strain is representable under the new constraints this is the same tensor; when it is not (e.g. a different material
+  // changes the stress-free eps33), the parameters you set are preserved and the dependent components are re-derived.
+  const coef = n ? B.pivots.map((i) => old.epsVect[i]) : [];
   const resid = n ? Math.hypot(...matvec(B, coef).map((v, i) => v - old.epsVect[i])) : Math.hypot(...old.epsVect);
   const tmpl = layer.params[0] ?? { hold: false, tol: 1e-9, step: -4, del: null };
   return {

@@ -31,21 +31,24 @@ export function modelState(project, K, modelObj, ov = new Map()) {
   const Ls = buildLayer(layer, M, { basis: layer.waves.epsVectL });
   const m = buildModel(model, Ls, M, beam);
   if (m.dynCorr) {
-    const atoms = { spc: M.spc, occ: M.occ, dCoord: model.waves.dCoordMat };
+    const atoms = { spc: M.spc, occ: M.occ, dCoord: M.dCoord };
     m.dE1 = computeDE1(m, makeHkl0(m, atoms, K.eDiff), atoms, K.eDiff);
   }
   return m;
 }
 
-/** Residual vector (expt - fit)/sigma for all included fits. */
-export function residuals(project, K, values, free, sig = 1) {
+/** Fits that take part in a joint fit: those with include set, or exactly `fitIds` when given. */
+export const fitsInScope = (project, fitIds = null) =>
+  project.objects.filter((o) => o.type === "Fit" && (fitIds ? fitIds.includes(o.id) : o.info.include));
+
+/** Residual vector (expt - fit)/sigma for all included fits (or only `fitIds`, regardless of their include flag). */
+export function residuals(project, K, values, free, sig = 1, fitIds = null) {
   const ov = new Map();
   free.forEach((f, k) => { if (!ov.has(f.id)) ov.set(f.id, new Map()); ov.get(f.id).set(f.index, values[k]); });
   const cache = new Map();
   const r = [];
-  for (const fit of project.objects.filter((o) => o.type === "Fit")) {
-    const [, , , , include, method] = Object.values(fit.info);
-    if (!include) continue;
+  for (const fit of fitsInScope(project, fitIds)) {
+    const method = fit.info.method;
     const mo = linkOf(project, fit, "modelKey"), ex = linkOf(project, fit, "exptKey");
     if (!cache.has(mo.id)) cache.set(mo.id, modelState(project, K, mo, ov));
     const m = cache.get(mo.id);
@@ -70,13 +73,13 @@ export function residuals(project, K, values, free, sig = 1) {
 function translate(v, dR) { const d = norm(v), c = v[0] / d, s = v[1] / d, dp = d + dR[0] * c + dR[1] * s; return [dp * c, dp * s]; }
 
 /** Central-difference Jacobian of the residual vector (port of GetJM/GetDFV: step is dPar total). */
-export function jacobian(project, K, values, free, dPar, sig = 1) {
+export function jacobian(project, K, values, free, dPar, sig = 1, fitIds = null) {
   const n = values.length;
   const cols = [];
   for (let i = 0; i < n; i++) {
     const p = values.slice(), m = values.slice();
     p[i] += dPar[i] / 2; m[i] -= dPar[i] / 2;
-    const rp = residuals(project, K, p, free, sig), rm = residuals(project, K, m, free, sig);
+    const rp = residuals(project, K, p, free, sig, fitIds), rm = residuals(project, K, m, free, sig, fitIds);
     cols.push(rp.map((x, k) => (x - rm[k]) / dPar[i]));
   }
   return T(cols);   // nData x nPar
@@ -101,18 +104,18 @@ export function parameterErrors(J) {
  * Levenberg-Marquardt exactly as in VaryParams. Returns {values, fom, iterations, errors, history, status}.
  * opts: { maxIter, sig, onIteration(info) }
  */
-export function vary(project, K, free, { maxIter = 20, sig = 1, onIteration } = {}) {
+export function vary(project, K, free, { maxIter = 20, sig = 1, onIteration, fitIds = null } = {}) {
   const nPar = free.length;
   let p0 = free.map((f) => f.value);
   let dPar = free.map((f) => f.tol);
   let lambda = 0.1, iter = 0, done = false, status = "max-iterations";
   const history = [];
   const norm2 = (v) => Math.sqrt(v.reduce((s, x) => s + x * x, 0));
-  let fom = norm2(residuals(project, K, p0, free, sig));
+  let fom = norm2(residuals(project, K, p0, free, sig, fitIds));
   do {
-    const r0 = residuals(project, K, p0, free, sig);
+    const r0 = residuals(project, K, p0, free, sig, fitIds);
     fom = norm2(r0);
-    const J = jacobian(project, K, p0, free, dPar, sig);
+    const J = jacobian(project, K, p0, free, dPar, sig, fitIds);
     const magDF = T(J).map(norm2), magDFMax = Math.max(...magDF);
     if (magDFMax / r0.length < 1e-12) { status = "converged"; break; }
     if (magDF.some((m) => m / magDFMax < 1e-12)) { status = "no-dependence"; break; }
@@ -121,7 +124,7 @@ export function vary(project, K, free, { maxIter = 20, sig = 1, onIteration } = 
       if (!pinv) return null;
       const inc = matvec(pinv, r0).map((x) => -x);
       const p = p0.map((x, k) => x + inc[k]);
-      return { p, fom: norm2(residuals(project, K, p, free, sig)) };
+      return { p, fom: norm2(residuals(project, K, p, free, sig, fitIds)) };
     };
     const s1 = step(lambda), s2 = step(lambda / 2);
     if (!(s1 && s2)) { status = "singular"; break; }
@@ -135,6 +138,6 @@ export function vary(project, K, free, { maxIter = 20, sig = 1, onIteration } = 
     onIteration?.({ iter, fom, params: p0 });
   } while (iter < maxIter && !done);
   let errors = null;
-  try { errors = parameterErrors(jacobian(project, K, p0, free, dPar, sig)); } catch { /* singular */ }
+  try { errors = parameterErrors(jacobian(project, K, p0, free, dPar, sig, fitIds)); } catch { /* singular */ }
   return { values: p0, fom, iterations: iter, errors, history, status };
 }

@@ -11,7 +11,7 @@ const fit = byId("Fit:1"), expt = link(fit, "exptKey"), sim = byId("Simulation:2
 const M = buildMaterial(mat, K);
 const Ls = buildLayer(layer, M, { basis: layer.waves.epsVectL });
 const Mo = buildModel(model, Ls, M, beam);
-const atoms = { spc: M.spc, occ: M.occ, dCoord: model.waves.dCoordMat };
+const atoms = { spc: M.spc, occ: M.occ, dCoord: M.dCoord };
 const close = (a, b, tol, msg) => assert.ok(maxDiff(a, b) <= tol, `${msg}: max diff ${maxDiff(a, b)} > ${tol}`);
 
 test("material", () => { close(M.A0, mat.waves.AMat, 1e-14, "AMat"); close(M.C, mat.waves.CMat, 1e-14, "CMat"); });

@@ -10,6 +10,7 @@ export class Viewer {
     this.snap = true; this.dark = true;
     this.drag = null; this.cursor = null; this.tmp = null;
     this.bitmap = null;
+    this.views = new Map(); this.srcKey = undefined;   // pan/zoom remembered per pattern
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
     canvas.addEventListener("wheel", (e) => this.onWheel(e), { passive: false });
     canvas.addEventListener("pointerdown", (e) => this.onDown(e));
@@ -34,6 +35,17 @@ export class Viewer {
     const s = Math.min(w / this.img.width, h / this.img.height) * 0.95;
     this.view = { s, ox: (w - this.img.width * s) / 2, oy: (h - this.img.height * s) / 2 };
     this.fitted = true;
+  }
+  /** Switch to another pattern/image: remember the current view, restore the target's (or fit it). Returns false if unchanged. */
+  setSource(key) {
+    if (key === this.srcKey) return false;
+    if (this.srcKey !== undefined) this.views.set(this.srcKey, { ...this.view });
+    this.srcKey = key;
+    this.rebuildBitmap();
+    const saved = this.views.get(key);
+    if (saved) { this.view = { ...saved }; this.fitted = true; } else { this.fitted = false; this.fitToWindow(); }
+    this.draw();
+    return true;
   }
   imageChanged() { this.fitted = false; this.rebuildBitmap(); this.fitToWindow(); this.draw(); }
 
@@ -127,7 +139,7 @@ export class Viewer {
     g.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--canvas-bg") || "#111";
     g.fillRect(0, 0, W, H);
     const img = this.img;
-    if (!img) { g.fillStyle = "#888"; g.font = "14px system-ui"; g.fillText("Drop a grayscale TIFF here or use Open image", 24, 40); return; }
+    if (!img) { g.fillStyle = "#888"; g.font = "14px system-ui"; g.fillText("No image for this pattern. Drop a grayscale TIFF here or use Set image.", 24, 40); return; }
     const v = this.view;
     if (this.show.image && this.bitmap) {
       g.imageSmoothingEnabled = v.s < 1;

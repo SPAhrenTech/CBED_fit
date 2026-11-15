@@ -12,7 +12,8 @@ button:disabled{opacity:.5;cursor:default}
 label{display:inline-flex;align-items:center;gap:4px}
 #coords{margin-left:auto;font-family:ui-monospace,monospace;color:var(--muted)}
 main{flex:1;display:flex;min-height:0}
-#view{flex:1;position:relative;min-width:0}
+#view{flex:1;display:flex;flex-direction:column;min-width:0}
+#stage{flex:1;position:relative;min-height:0}
 canvas{position:absolute;inset:0;display:block;touch-action:none}
 aside{width:480px;border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
 nav{display:flex;border-bottom:1px solid var(--line)}
@@ -42,3 +43,29 @@ dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px}dt{color:var(--muted
 .row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
 @media (max-width:800px){main{flex-direction:column}aside{width:auto;height:45vh;border-left:0;border-top:1px solid var(--line)}}
 .lines th:nth-child(3){text-align:right}
+
+#patterns{display:flex;gap:6px;align-items:stretch;padding:6px 8px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
+.ptab{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border:1px solid var(--line);border-radius:8px;cursor:pointer;white-space:nowrap;background:var(--bg)}
+.ptab:hover{border-color:var(--accent)}
+.ptab.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel))}
+.ptab .t{font-weight:600}.ptab .m{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace}
+.ptab .m.stale{opacity:.55}.ptab.off{opacity:.6}
+.ptab input{margin:0}
+#patterns .nav{padding:2px 8px;align-self:center}
+.badge{font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:10px;padding:0 7px;white-space:nowrap}
+.sect{display:flex;gap:8px;align-items:center;margin:14px 0 6px}
+.sect h3{margin:0;flex:0 0 auto}.sect select{flex:1;min-width:0;padding:2px 4px}
+.sect2{display:grid;grid-template-columns:96px 1fr;gap:5px 8px;align-items:center;margin:4px 0 8px}
+.sect2 .vec{display:flex;gap:4px}.num.vec{width:48px;padding:3px 4px}
+.titleIn{flex:1;min-width:0}
+dialog.modal{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);padding:18px 20px;width:min(520px,92vw)}
+dialog.modal::backdrop{background:rgba(0,0,0,.45)}
+dialog.modal h2{margin:0 0 10px;font-size:16px}
+.frow{display:grid;grid-template-columns:150px 1fr;gap:3px 10px;align-items:center;margin:7px 0}
+.frow .hint{grid-column:2;margin-top:-2px}.frow .num{width:100%}.frow select{padding:4px}.frow .vec{display:flex;gap:6px}
+.row.end{justify-content:flex-end;margin:16px 0 0}
+.row.spread{justify-content:space-between}
+.fitscope{display:flex;flex-direction:column;gap:4px;margin:6px 0 10px}
+.lines td.dim{color:var(--muted)}
+.sect2>span:not(.lbl){display:flex;gap:4px;align-items:center;flex-wrap:wrap;min-width:0}
+.sect2 select{padding:3px;min-width:0}

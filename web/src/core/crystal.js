@@ -18,6 +18,10 @@ function cubicC(c11, c12, c44) {
   return C;
 }
 
+// Fractional positions of the basis atoms in the cubic cell: diamond/zincblende, cations at 0 and anions at 1/4 1/4 1/4.
+// (The Igor constants tables hold these swapped between Si and GaInPAs, so they are derived from the atom count instead.)
+const dCoordFor = (nAtoms) => (nAtoms === 2 ? [[0, 0, 0], [0.25, 0.25, 0.25]] : [[0, 0, 0], [0, 0, 0], [0.25, 0.25, 0.25], [0.25, 0.25, 0.25]]);
+
 /** Bulk crystal from a Material object. type 0 = Si, 1 = GaInPAs (x = Ga fraction, y = As fraction). */
 export function buildMaterial(mat, K) {
   const mp = K.materProps, type = K.materTypes[mat.vars.materType];
@@ -31,7 +35,7 @@ export function buildMaterial(mat, K) {
     occ = [x, 1 - x, 1 - y, y];
     C = cubicC(bilinear(x, y, mp.c11), bilinear(x, y, mp.c12), bilinear(x, y, mp.c44));
   }
-  return { a0, alphaT, occ, C, A0: eye(3).map((r) => r.map((v) => v * a0)), primT: type.primTMat, spc: type.spcVect, dCoord: type.dCoordMat };
+  return { a0, alphaT, occ, C, A0: eye(3).map((r) => r.map((v) => v * a0)), primT: type.primTMat, spc: type.spcVect, dCoord: dCoordFor(type.spcVect.length) };
 }
 
 // ---------------------------------------------------------------- Layer
