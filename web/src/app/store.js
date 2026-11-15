@@ -1,3 +1,4 @@
+import { houghWindow } from "./hough.js";
 import { modelState, freeParams, fitsInScope, simulateLines, findDelR, canonicalizeProject, interPairs, buildMaterial } from "../core/index.js";
 import * as F from "../core/factory.js";
 import { encodeImage, decodeImage } from "./imageio.js";
@@ -90,7 +91,7 @@ export class Store {
       };
     });
   }
-  setActiveFit(id) { if (!this.fitIds.includes(id)) return; this.activeFitId = id; this.selectedLine = -1; this.recompute(); this.emit("pattern"); }
+  setActiveFit(id) { if (!this.fitIds.includes(id)) return; this.activeFitId = id; this.candidates = []; this.selectedLine = -1; this.recompute(); this.emit("pattern"); }
   stepPattern(dir) { const ids = this.fitIds, i = ids.indexOf(this.activeFitId); this.setActiveFit(ids[(i + dir + ids.length) % ids.length]); }
   /** Objects that share `id` with other patterns: titles of the other patterns using it. */
   sharedWith(id) {
@@ -246,6 +247,28 @@ export class Store {
   setLineHkl(i, hkl) {
     const id = this.ctx.expt.id;
     this.mutate((p) => { find(p, id).waves.hklMat[i] = hkl; this.refreshPairs(p); }, "lines", { coalesce: `hkl:${id}:${i}` });
+  }
+  /** Hough search around every simulated line not yet marked; candidates are stored for review. */
+  findLines({ dark = true, W = 16, minProminence = 4 } = {}) {
+    const img = this.image, sim = this.sim; this.candidates = [];
+    if (!img || !sim) { this.emit("candidates"); return; }
+    const m = sim.m, centre = [m.xZone + m.dxBeam, m.yZone + m.dyBeam], rad = m.L * Math.tan(m.alpha / 1000);
+    const marked = this.markedLines().filter((l) => l.assigned).map((l) => l.hkl.join(","));
+    for (const l of sim.lines) {
+      if (marked.includes(l.hkl.join(","))) continue;
+      const r = houghWindow(img, l.delR, centre, rad, { dark, W });
+      if (!r.peak) continue;
+      const delR = [l.delR[0] + r.peak.a, l.delR[1] + r.peak.b];
+      this.candidates.push({ hkl: l.hkl, predicted: l.delR, delR, shift: Math.hypot(r.peak.a, r.peak.b), prominence: r.prominence, score: r.peak.score, hough: r, accept: r.prominence >= minProminence });
+    }
+    this.candidates.sort((a, b) => b.prominence - a.prominence);
+    this.emit("candidates");
+  }
+  acceptCandidates() {
+    const cs = (this.candidates ?? []).filter((c) => c.accept); if (!cs.length) return;
+    const id = this.ctx.expt.id;
+    this.mutate((p) => { const e = find(p, id); for (const c of cs) { e.waves.delRMat.push(c.delR); e.waves.hklMat.push(c.hkl.slice()); } this.refreshPairs(p); }, "lines");
+    this.candidates = []; this.emit("candidates");
   }
   /** Nearest simulated line to a marked line (for suggesting hkl). */
   suggestHkl(delR, maxDist = 40) {

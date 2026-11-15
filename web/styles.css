@@ -69,3 +69,4 @@ dialog.modal h2{margin:0 0 10px;font-size:16px}
 .lines td.dim{color:var(--muted)}
 .sect2>span:not(.lbl){display:flex;gap:4px;align-items:center;flex-wrap:wrap;min-width:0}
 .sect2 select{padding:3px;min-width:0}
+#tab-lines canvas.hough{position:static;inset:auto;width:66px;height:66px;image-rendering:pixelated;display:block}

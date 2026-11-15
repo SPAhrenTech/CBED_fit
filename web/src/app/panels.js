@@ -159,7 +159,30 @@ export class ParamsPanel {
 // ------------------------------------------------------------------ lines
 /** Marked lines table of the active pattern. */
 export class LinesPanel {
-  constructor(root, store) { this.root = root; this.store = store; store.subscribe((k) => { if (k !== "image" && k !== "values") this.render(); }); }
+  constructor(root, store) { this.root = root; this.store = store; store.subscribe((k) => { if (k !== "image" && k !== "values") this.render(); }); this.dark = true; }
+  houghView(c) {
+    const r = c.hough, cv = h("canvas", { width: r.n, height: r.n, class: "hough" }), g = cv.getContext("2d");
+    const v = Array.from(r.grid).filter(Number.isFinite), lo = Math.min(...v), hi = Math.max(...v), im = g.createImageData(r.n, r.n);
+    for (let j = 0; j < r.n; j++) for (let i = 0; i < r.n; i++) {   // b increases upward, as the image y axis
+      const q = r.grid[(r.n - 1 - j) * r.n + i], t = Number.isFinite(q) ? (q - lo) / (hi - lo || 1) : 0, o = (j * r.n + i) * 4;
+      im.data.set([255 * t, 255 * Math.sqrt(t), 80 * t, 255], o);
+    }
+    g.putImageData(im, 0, 0);
+    const px = (a) => (a + r.W) / r.step + 0.5, cx = px(0), py = r.n - px(0) + 0, pk = r.n - (c.delR[1] - c.predicted[1] + r.W) / r.step - 0.5;
+    g.strokeStyle = "#fff"; g.beginPath(); g.moveTo(cx - 3, py); g.lineTo(cx + 3, py); g.moveTo(cx, py - 3); g.lineTo(cx, py + 3); g.stroke();
+    g.strokeStyle = "#3f6"; g.strokeRect(px(c.delR[0] - c.predicted[0]) - 2, pk - 2, 4, 4);
+    return cv;
+  }
+  candidateBlock() {
+    const s = this.store, cs = s.candidates ?? [];
+    const rows = cs.map((c) => h("tr", {}, h("td", {}, h("input", { type: "checkbox", checked: c.accept, onchange: (e) => { c.accept = e.target.checked; s.emit("candidates"); } })),
+      h("td", {}, c.hkl.join(" ")), h("td", { class: "r" }, c.shift.toFixed(1)), h("td", { class: "r" }, c.prominence.toFixed(1)), h("td", {}, this.houghView(c))));
+    return [h("div", { class: "row" },
+      h("button", { onclick: () => s.findLines({ dark: this.dark }) }, "Find lines (Hough)"),
+      h("label", { class: "inline" }, h("input", { type: "checkbox", checked: this.dark, onchange: (e) => { this.dark = e.target.checked; } }), " dark")),
+      ...(cs.length ? [h("table", { class: "lines" }, h("thead", {}, h("tr", {}, ...["", "hkl", "shift px", "σ", "accumulator (±16 px)"].map((t) => h("th", {}, t)))), h("tbody", {}, rows)),
+        h("div", { class: "row" }, h("button", { class: "primary", onclick: () => s.acceptCandidates() }, `Add ${cs.filter((c) => c.accept).length} checked`), h("button", { onclick: () => { s.candidates = []; s.emit("candidates"); } }, "Discard"))] : [])];
+  }
   render() {
     const s = this.store; if (!s.ctx?.expt) return;
     const lines = s.markedLines(), fit = s.ctx.fit;
@@ -171,6 +194,7 @@ export class LinesPanel {
       h("td", {}, used.has(l.i) ? "●" : "○"),
       h("td", {}, h("button", { class: "arrow", title: "delete line", onclick: (e) => { e.stopPropagation(); s.removeLine(l.i); } }, "✕"))));
     this.root.replaceChildren(
+      ...this.candidateBlock(),
       h("p", { class: "hint" }, `Lines of “${fit.title}”. Press `, h("kbd", {}, "M"), " (or choose Mark line) and drag along a line in the image; it snaps to the nearest ridge and takes the hkl of the closest simulated line. ● marks lines that form intersections used by the fit."),
       h("table", { class: "lines" }, h("thead", {}, h("tr", {}, ...["#", "hkl", "Δ (px)", "fit", ""].map((t) => h("th", {}, t)))), h("tbody", {}, rows)),
       h("p", { class: "hint" }, `${lines.length} lines, ${lines.filter((l) => l.assigned).length} assigned, ${used.size} used in ${fit.waves.interList?.length ?? 0} intersections.`));

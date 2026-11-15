@@ -163,6 +163,7 @@ export class Viewer {
         if (this.show.labels && l.assigned) this.label(l.delR, l.hkl.join(" "), css("--mark", "#33d6ff"));
       }
     }
+    for (const c of this.store.candidates ?? []) this.strokeLine(c.delR, c.accept ? "rgba(80,255,120,.95)" : "rgba(160,160,160,.6)", 1.5, [2, 3]);
     if (this.drag?.kind === "mark") { const [a, b] = [this.drag.a, this.drag.b].map((p) => this.toScreen(...p)); g.beginPath(); g.moveTo(...a); g.lineTo(...b); g.strokeStyle = "#fff"; g.lineWidth = 1; g.setLineDash([3, 3]); g.stroke(); g.setLineDash([]); }
     g.restore();
   }
