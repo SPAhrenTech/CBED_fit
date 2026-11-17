@@ -100,14 +100,14 @@ async function addPattern() {
 }
 $("new").addEventListener("click", newProject);
 
-// ---- boot: bundled example ----
+// ---- boot: default project (a self-contained cbed-web file; change the name to use another) ----
+const DEFAULT_PROJECT = "data/GaAs_300K_GIF.json";
 (async () => {
   try {
-    const [project, K] = await Promise.all([fetch("data/project.json").then((r) => r.json()), fetch("data/constants.json").then((r) => r.json())]);
-    store.load(project, K);
-    const imgObj = project.objects.find((o) => o.imageFile);
-    if (imgObj) { store.setImage(withStats(await decodeRaster(await (await fetch("data/" + imgObj.imageFile)).blob())), imgObj.title); store.clearHistory(); store.emit("all"); }
+    store.K = await fetch("data/constants.json").then((r) => r.json());
+    store.loadJSON(await fetch(DEFAULT_PROJECT).then((r) => { if (!r.ok) throw new Error(`${DEFAULT_PROJECT}: ${r.status}`); return r.text(); }));
+    store.clearHistory(); store.emit("all");
     setTool("pan");
-  } catch (e) { $("coords").textContent = "Failed to load example: " + e.message; }
+  } catch (e) { $("coords").textContent = "Failed to load default project: " + e.message; }
 })();
 window.cbed = { store, viewer };
