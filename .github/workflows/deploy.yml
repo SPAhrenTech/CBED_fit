@@ -1,4 +1,5 @@
 # Publishes the web/ folder to eQuillTech.com/CBED_fit over FTP on every push to main.
+# The FTP account (cbed@equilltech.com) is rooted at public_html/CBED_fit, so server-dir is its root "./".
 # Needs repository secrets: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD (Settings > Secrets and variables > Actions).
 name: Deploy to eQuillTech.com
 on:
@@ -21,6 +22,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./web/
-          server-dir: ./public_html/CBED_fit/
+          server-dir: ./
           exclude: |
             **/.DS_Store
