@@ -7,12 +7,17 @@ export const X = [1, 0, 0], Y = [0, 1, 0], Z = [0, 0, 1];
 // Relativistic electron wavelength (nm) for energy E (keV).
 export const wavelength = (E) => HC / Math.sqrt(E * (E + 2 * MC2));
 
-// Electron scattering factor: sum of three Gaussians. pars = [A1,B1,A2,B2,A3,B3].
-export const fe = (pars, s) => pars[0] * Math.exp(-pars[1] * s * s) + pars[2] * Math.exp(-pars[3] * s * s) + pars[4] * Math.exp(-pars[5] * s * s);
+// Electron scattering factor, Doyle & Turner (1968) eq. (4) with c = 0: f(s) = sum_i a_i exp(-b_i s^2).
+// pars = [a1,b1,...,an,bn] (four terms from Table 4(a); any number of pairs is accepted), a in nm, b in nm^2, s = |g|/2 in 1/nm.
+export function fe(pars, s) {
+  let f = 0; const s2 = s * s;
+  for (let i = 0; i + 1 < pars.length; i += 2) f += pars[i] * Math.exp(-pars[i + 1] * s2);
+  return f;
+}
 
 // Electron scattering factor by atomic number Z. The Igor get_ffac had Si (14) pointing at the Ga parameters and
 // P (15) and In (listed as 40, but In is 49) returning 0, so only Ga and As were correct; fixed here.
-// NOTE: eDiff.fIn_pars is currently a copy of fGa_pars in the Igor experiment (a placeholder), so In is not yet right.
+// Parameters are the Doyle & Turner 4-term fits for Si, P, Ga, As and In (the Igor experiment's In was a copy of Ga).
 const FFAC_KEY = { 14: "fSi_pars", 15: "fP_pars", 31: "fGa_pars", 33: "fAs_pars", 49: "fIn_pars" };
 export function ffac(Z, s, eDiff) {
   const k = FFAC_KEY[Z];

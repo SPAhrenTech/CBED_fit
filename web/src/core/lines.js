@@ -97,3 +97,17 @@ export function interPairs(m, expt, { Nmin = 1, Nmax = 1 } = {}, { igorCompat = 
   }
   return out;
 }
+
+/**
+ * Marked lines that enter a method-0 fit: those with an assigned hkl (not 0 0 0) in Laue zones Nmin..Nmax.
+ * Returns their indices into expt.hklMat.
+ */
+export function lineList(m, expt, { Nmin = 1, Nmax = 1 } = {}) {
+  const out = [];
+  expt.hklMat.forEach((h, i) => {
+    if (!h.some((x) => x !== 0)) return;
+    const N = dot(h, m.uvwz);
+    if (N >= Nmin && N <= Nmax) out.push(i);
+  });
+  return out;
+}

@@ -12,17 +12,21 @@ export class PatternStrip {
   render() {
     const s = this.store; if (!s.project) return;
     const pats = s.patterns, many = pats.length > 1;
-    const tabs = pats.map((p) => {
+    const tabs = pats.map((p, k) => {
       const meta = [zoneText(p.zone), `${p.nAssigned}/${p.nLines} lines`, p.fom != null ? `FOM ${p.fom.toFixed(2)}` : null, p.hasImage ? null : "no image"].filter(Boolean).join(" · ");
       return h("div", { class: `ptab${p.id === s.activeFitId ? " on" : ""}${p.include ? "" : " off"}`, title: "Click to show this pattern", onclick: () => s.setActiveFit(p.id) },
         h("input", { type: "checkbox", checked: p.include, title: "Include in the joint fit", onclick: (e) => e.stopPropagation(), onchange: (e) => s.setInclude(p.id, e.target.checked) }),
         h("span", { class: "t" }, p.title),
+        many && h("span", { class: "mv" },
+          h("button", { title: "Move this pattern left", disabled: k === 0, onclick: (e) => { e.stopPropagation(); s.movePattern(p.id, -1); } }, "◀"),
+          h("button", { title: "Move this pattern right", disabled: k === pats.length - 1, onclick: (e) => { e.stopPropagation(); s.movePattern(p.id, 1); } }, "▶")),
         h("span", { class: `m${p.stale ? " stale" : ""}`, title: p.stale ? "FOM from the last fit; parameters have changed since" : "" }, meta));
     });
     this.root.replaceChildren(...[
       many && h("button", { class: "nav", title: "Previous pattern ([ or PageUp)", onclick: () => s.stepPattern(-1) }, "‹"),
       ...tabs,
       many && h("button", { class: "nav", title: "Next pattern (] or PageDown)", onclick: () => s.stepPattern(1) }, "›"),
+      many && h("button", { class: "nav", title: "Sort by name: titles without a number first (Substrate), then Layer1, Layer2, ... in numeric order", onclick: () => s.sortPatterns() }, "Sort"),
       h("button", { class: "nav", title: "Add a pattern (another image, orientation or beam)", onclick: () => this.hooks.onAdd() }, "＋ Add pattern")].filter(Boolean));
     this.root.querySelector(".ptab.on")?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
@@ -186,7 +190,7 @@ export class LinesPanel {
   render() {
     const s = this.store; if (!s.ctx?.expt) return;
     const lines = s.markedLines(), fit = s.ctx.fit;
-    const used = new Set((fit.waves.interList ?? []).flat());
+    const byLine = fit.info.method === 0, used = new Set(byLine ? (fit.waves.delList ?? []) : (fit.waves.interList ?? []).flat());
     const rows = lines.map((l) => h("tr", { class: l.i === s.selectedLine ? "sel" : "", onclick: () => { s.selectedLine = l.i; s.emit("lines"); } },
       h("td", {}, l.i + 1),
       h("td", {}, h("input", { class: "hkl", value: l.assigned ? l.hkl.join(" ") : "", placeholder: "h k l", onclick: (e) => e.stopPropagation(), onchange: (e) => { const t = e.target.value.trim().split(/[\s,]+/).map(Number); if (t.length === 3 && t.every(Number.isFinite)) s.setLineHkl(l.i, t); else if (!e.target.value.trim()) s.setLineHkl(l.i, [0, 0, 0]); else e.target.value = l.hkl.join(" "); } })),
@@ -195,9 +199,9 @@ export class LinesPanel {
       h("td", {}, h("button", { class: "arrow", title: "delete line", onclick: (e) => { e.stopPropagation(); s.removeLine(l.i); } }, "✕"))));
     this.root.replaceChildren(
       ...this.candidateBlock(),
-      h("p", { class: "hint" }, `Lines of “${fit.title}”. Press `, h("kbd", {}, "M"), " (or choose Mark line) and drag along a line in the image; it snaps to the nearest ridge and takes the hkl of the closest simulated line. ● marks lines that form intersections used by the fit."),
+      h("p", { class: "hint" }, `Lines of “${fit.title}”. Press `, h("kbd", {}, "M"), " (or choose Mark line) and drag along a line in the image; it snaps to the nearest ridge and takes the hkl of the closest simulated line. ● marks lines used by the fit (in intersection pairs, or individually when the method is “line positions”)."),
       h("table", { class: "lines" }, h("thead", {}, h("tr", {}, ...["#", "hkl", "Δ (px)", "fit", ""].map((t) => h("th", {}, t)))), h("tbody", {}, rows)),
-      h("p", { class: "hint" }, `${lines.length} lines, ${lines.filter((l) => l.assigned).length} assigned, ${used.size} used in ${fit.waves.interList?.length ?? 0} intersections.`));
+      h("p", { class: "hint" }, `${lines.length} lines, ${lines.filter((l) => l.assigned).length} assigned, ${byLine ? `${used.size} lines used (fit by line position).` : `${used.size} used in ${fit.waves.interList?.length ?? 0} intersections.`}`));
   }
 }
 
@@ -214,9 +218,16 @@ export class FitPanel {
     const nUsers = (id) => ids.filter((fid) => s.objectsOf(fid).some((o) => o.id === id)).length;
     const freeRows = free.map((q) => { const o = s.obj(s.project, q.id), p = o.params[q.index], n = nUsers(q.id);
       return h("tr", {}, h("td", {}, q.label), h("td", { class: "dim" }, o.title || o.id), h("td", { class: "r" }, fmt(p.value, 7)), h("td", { class: "r dim" }, p.del != null ? "± " + sci(p.del) : ""), h("td", {}, n > 1 ? h("span", { class: "badge" }, `×${n}`) : "")); });
+    const method = s.ctx.fit.info.method === 1 ? 1 : 0;
     const radio = (v, text) => h("label", {}, h("input", { type: "radio", name: "scope", checked: s.scope === v, disabled: f.running, onchange: () => s.setScope(v) }), " " + text);
     this.root.replaceChildren(
       h("div", { class: "fitscope" }, radio("active", `This pattern only (“${s.ctx.fit.title}”)`), radio("all", `All included patterns, jointly (${nIncluded} of ${pats.length})`)),
+      h("div", { class: "fitmethod" },
+        h("label", { class: "inline" }, "Fit method (this pattern) ",
+          h("select", { disabled: f.running, onchange: (e) => s.setMethod(s.activeFitId, parseInt(e.target.value, 10)) },
+            h("option", { value: 1, selected: method === 1 }, "Line intersections"), h("option", { value: 0, selected: method === 0 }, "Line positions"))),
+        method === 0 ? h("label", { class: "inline" }, "origin x, y (pix) ",
+          ...["xc", "yc"].map((k) => h("input", { type: "number", class: "step", value: s.ctx.fit.info[k], disabled: f.running, onchange: (e) => { const v = parseFloat(e.target.value); if (Number.isFinite(v)) s.setFitOrigin(s.activeFitId, k === "xc" ? v : s.ctx.fit.info.xc, k === "yc" ? v : s.ctx.fit.info.yc); } }))) : null),
       h("div", { class: "row" },
         h("button", { class: "primary", disabled: f.running, onclick: () => s.runFit(parseInt(this.iters.value, 10) || 20) }, f.running ? "Fitting…" : "Run fit"),
         h("button", { disabled: !f.running, onclick: () => s.stopFit() }, "Stop"),
@@ -229,9 +240,9 @@ export class FitPanel {
         h("dt", {}, "Status"), h("dd", {}, f.status)),
       h("h3", {}, "Free parameters"),
       free.length ? h("table", { class: "lines" }, h("tbody", {}, freeRows)) : h("p", { class: "hint" }, "Everything is held. Untick “hold” next to a parameter in the Parameters tab."),
-      h("p", { class: "hint" }, "A parameter of an object shared by several patterns (×n) is fitted once, against the lines of all of them. FOM is the root-sum-square of the intersection-point residuals in pixels (σ = 1 px)."),
+      h("p", { class: "hint" }, "A parameter of an object shared by several patterns (×n) is fitted once, against the lines of all of them. FOM is the root-sum-square of the residuals in pixels (σ = 1 px). “Line intersections” compares the crossing points of pairs of marked lines with the simulated crossings, which is insensitive to a shift of the whole pattern. “Line positions” compares each marked line vector with its simulated line, relative to the origin x, y."),
       h("h3", {}, "Patterns"),
-      h("table", { class: "lines" }, h("thead", {}, h("tr", {}, ...["pattern", "pairs", "FOM"].map((t) => h("th", {}, t)))),
+      h("table", { class: "lines" }, h("thead", {}, h("tr", {}, ...["pattern", "data", "FOM"].map((t) => h("th", {}, t)))),
         h("tbody", {}, pats.map((p) => h("tr", { class: p.id === s.activeFitId ? "sel" : "", onclick: () => s.setActiveFit(p.id) },
           h("td", {}, p.title, ids.includes(p.id) ? "" : h("small", { class: "dim" }, " (not in fit)")), h("td", { class: "r" }, p.nPairs), h("td", { class: `r${p.stale ? " dim" : ""}` }, p.fom == null ? "–" : p.fom.toFixed(3)))))),
       last.length ? h("h3", {}, "Last iterations") : null,

@@ -23,6 +23,25 @@ Regenerate with `python3 tools/extract_project.py "CBED_fit Folder" web/data`.
 | 12 | Analysis | LM fit controls | `parVal[0]` = iterations; tolerances by param class |
 | 13 | Material | Composition-dependent bulk crystal | `materType` (0 Si, 1 GaInPAs), params xGa, yAs |
 
+## Model geometry fields
+
+All positions are image pixels in model coordinates: x is the column, y is the height minus the row (y up).
+
+| Field | Kind | Meaning |
+|-------|------|---------|
+| `xc`, `yc` | fit parameters | Point where the zone-axis direction meets the pattern. Origin of the line geometry. |
+| `xb (pix)`, `yb (pix)` | info (not fitted) | Offset of the centre of the CBED disk from (`xc`, `yc`). The disk centre is `rBeam = (xc + xb, yc + yb)`. Default 0, 0. |
+| `alpha(mrad)` | info | Convergence half-angle. The disk is the circle of radius `L * tan(alpha)` about `rBeam`. |
+| `L` | fit parameter | Camera length in pixels. |
+| `phi` | fit parameter | In-plane rotation of the pattern (degrees). |
+| `eccX`, `eccY` | fit parameters | Eccentricity (anisotropic scaling) of the pattern, applied about `rBeam`. |
+
+How `xb`, `yb` are used (`web/src/core/crystal.js`, `lines.js`):
+
+- A simulated line is listed only if it crosses the disk (`isLineInCircle`, centre `rBeam`).
+- The eccentricity is undone about `rBeam` when identifying a marked line (`findHklFromLine`) and when selecting line pairs whose intersection lies inside the disk (`interPairs`).
+- They are plain info fields, so the fit never changes them. If the disk is visibly off-centre from the zone axis, set them by hand (Parameters tab, Camera & orientation).
+
 ## Relationships
 
 Each object has integer **keys** (`<prefix><6-digit key>`) and optional pointer variables:

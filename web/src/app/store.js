@@ -1,5 +1,5 @@
 import { houghWindow } from "./hough.js";
-import { modelState, freeParams, fitsInScope, simulateLines, findDelR, canonicalizeProject, interPairs, buildMaterial } from "../core/index.js";
+import { modelState, freeParams, fitsInScope, simulateLines, findDelR, canonicalizeProject, interPairs, lineList, buildMaterial } from "../core/index.js";
 import * as F from "../core/factory.js";
 import { encodeImage, decodeImage } from "./imageio.js";
 
@@ -86,7 +86,7 @@ export class Store {
       const hkl = expt.waves.hklMat, r = this.results.get(id);
       return {
         id, title: fit.title, include: !!fit.info.include, hasImage: !!this.images.get(this.imageObj(id)?.vars.ref),
-        nLines: hkl.length, nAssigned: hkl.filter((h) => h.some((x) => x !== 0)).length, nPairs: fit.waves.interList?.length ?? 0,
+        nLines: hkl.length, nAssigned: hkl.filter((h) => h.some((x) => x !== 0)).length, nPairs: (fit.info.method === 1 ? fit.waves.interList?.length : fit.waves.delList?.length) ?? 0,
         zone: model.waves.uvwzVect, fom: r?.fom ?? null, stale: r ? r.project !== this.project : false,
       };
     });
@@ -227,6 +227,33 @@ export class Store {
     this.results.delete(fitId);
     this.setActiveFit(this.fitIds[Math.min(i, this.fitIds.length - 1)]);
   }
+  /** Fit method of a pattern: 1 = intersections of line pairs, 0 = each line against its simulated line. */
+  setMethod(fitId, method) {
+    this.mutate((p) => { find(p, fitId).info.method = method; this.refreshPairs(p, fitId); }, "structure");
+  }
+  /** Origin (pixels) relative to which method-0 line vectors are compared. */
+  setFitOrigin(fitId, xc, yc) { this.mutate((p) => { const i = find(p, fitId).info; i.xc = xc; i.yc = yc; }, "structure", { coalesce: `fitorigin:${fitId}` }); }
+  /** Put the Fit objects (the patterns) into the given id order; every other object stays where it is. */
+  reorderPatterns(order) {
+    this.mutate((p) => {
+      const slots = p.objects.map((o, i) => (o.type === "Fit" ? i : -1)).filter((i) => i >= 0);
+      const byId = new Map(slots.map((i) => [p.objects[i].id, p.objects[i]]));
+      order.forEach((id, k) => { p.objects[slots[k]] = byId.get(id); });
+    }, "structure");
+  }
+  /** Move a pattern one place left (-1) or right (+1) in the strip. */
+  movePattern(fitId, dir) {
+    const ids = this.fitIds, i = ids.indexOf(fitId), j = i + dir;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    this.reorderPatterns(ids);
+  }
+  /** Patterns without a number in the title first (e.g. Substrate), then natural order by title (Layer1, Layer2, ..., Layer10). */
+  sortPatterns() {
+    const t = (id) => find(this.project, id).title ?? "";
+    const ids = this.fitIds.slice().sort((a, b) => (/\d/.test(t(a)) - /\d/.test(t(b))) || t(a).localeCompare(t(b), undefined, { numeric: true, sensitivity: "base" }));
+    this.reorderPatterns(ids);
+  }
   setInclude(fitId, on) { this.mutate((p) => { find(p, fitId).info.include = on ? 1 : 0; }, "structure"); }
   renamePattern(fitId, title) {
     this.mutate((p) => { const f = find(p, fitId); f.title = title; const e = linkOf(p, f, "exptKey"); if (e) e.title = title; }, "structure", { coalesce: `title:${fitId}` });
@@ -282,6 +309,7 @@ export class Store {
     try {
       const m = modelState(p, this.K, model);
       fit.waves.interList = interPairs(m, expt.waves, { Nmin: fit.info.Nzmin, Nmax: fit.info.Nzmax });
+      fit.waves.delList = lineList(m, expt.waves, { Nmin: fit.info.Nzmin, Nmax: fit.info.Nzmax });
     } catch { /* keep previous list */ }
   }
 

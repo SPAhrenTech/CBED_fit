@@ -24,8 +24,11 @@ line intersections are reproduced to 2e-5 px and its figure of merit to 8 digits
 ## Suspected bugs in the Igor code (ported as-is so results match; decide whether to fix)
 1. `get_ffac` (**fixed in the JS**): Si (Z=14) returned the Ga parameters; P (15) and In (listed as 40, In is 49)
    returned 0. `ffac()` in `physics.js` now maps Z to the right table and throws for unknown elements. GaAs results
-   are unchanged. **Still open:** `fIn_pars` in the Igor experiment is an exact copy of `fGa_pars`, so In needs real
-   parameters before InGaAsP compositions are right.
+   are unchanged. **Scattering parameters replaced:** `constants.json` now holds the Doyle & Turner (1968, Acta Cryst.
+   A24, 390) Table 4(a) four-term fits `f(s) = sum a_i exp(-b_i s^2)` for Si, P, Ga, As and In (a/10 and b/100 to give nm
+   and 1/nm). This also fixes In, which was a copy of Ga. The Igor three-term values are kept in
+   `test/fixtures_eDiff_igor.json` so the Igor-parity tests stay exact; `test/scattering.test.mjs` checks the new
+   parameters against the paper's Table 2.
 2. `Constants/materTypes` (**fixed in the JS**): `dCoordMat` has 2 rows for GaInPAs (4 atoms) and 4 rows for Si
    (2 atoms), apparently swapped. Igor's Model keeps its own correct copy, which is why GaAs works there; a Si model
    built from the Constants tables would be wrong. `buildMaterial` now derives the atom positions from the number of
@@ -68,3 +71,23 @@ it independent (`factory.js`: `addPattern`, `copyObject`, `relink`, `removePatte
 - Per-pattern FOMs shown after a fit are marked stale as soon as any parameter changes.
 - Not covered yet: weighting patterns against each other (all residuals use sigma = 1 px), per-pattern sigma, and
   fitting a pattern's image-independent quantities without any image (the fit needs only marked lines).
+
+## Fit methods
+
+`Fit.info.method` is selectable per pattern in the Fit tab. Method 1 (default) fits the crossing points of line pairs
+(`interList`). Method 0 fits each marked line against its simulated line, relative to the origin `Fit.info.xc/yc`
+(`delList`, the assigned lines of the fitted Laue zones). Both lists are recomputed from the marked lines before each fit.
+Method 0 is covered by `test/method.test.mjs`; it was never tested against Igor, since the saved Igor fits use method 1.
+
+## Importing older (v244) Igor experiments
+
+`python3 tools/import_v244.py "<CBED_fit ... Folder>" out.json [--thresh-cap 0.05]` converts an
+unpacked experiment with the older plural-folder layout (`Fits/`, `Models/`, `Layers/`, `Experiments/`,
+`Images/`, `Beams/`, objects linked through each folder's `keyList`). It writes one pattern per old Fit
+(images, marked lines, hold flags and error bars) and shares the single Beam.
+
+- Tetragonal lattice constants a, c become `eps11 = a/a0 - 1`, `eps33 = c/a0 - 1` (free-strain layer, in-plane symmetry,
+  no shear). a0 is recomputed by the web app, so ε values differ slightly from the old reference lattice.
+- The Model `thresh` is capped (default 0.05); the new dynamical-energy correction is very sensitive to it.
+- Material is assumed to be Ga(1-x)In(x)As(y)P(1-y), as in the example files.
+- Pairs (Fit.interList) are recomputed. Saved simulations and fit results from the old file are not imported.

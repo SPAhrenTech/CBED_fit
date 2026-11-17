@@ -8,3 +8,6 @@ export function maxDiff(a, b) {
   if (Array.isArray(a)) return Math.max(0, ...a.map((x, i) => maxDiff(x, b[i])));
   return Math.abs(a - b);
 }
+
+// The Igor experiment's original three-term scattering parameters, kept so the Igor-parity tests stay exact.
+export const KIgor = { ...K, eDiff: JSON.parse(readFileSync(new URL("./fixtures_eDiff_igor.json", import.meta.url))) };

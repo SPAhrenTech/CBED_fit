@@ -70,3 +70,8 @@ dialog.modal h2{margin:0 0 10px;font-size:16px}
 .sect2>span:not(.lbl){display:flex;gap:4px;align-items:center;flex-wrap:wrap;min-width:0}
 .sect2 select{padding:3px;min-width:0}
 #tab-lines canvas.hough{position:static;inset:auto;width:66px;height:66px;image-rendering:pixelated;display:block}
+.fitmethod{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.ptab .mv{display:inline-flex;gap:1px}
+.ptab .mv button{padding:0 4px;font-size:9px;line-height:16px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:4px;cursor:pointer}
+.ptab .mv button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.ptab .mv button:disabled{opacity:.3;cursor:default}

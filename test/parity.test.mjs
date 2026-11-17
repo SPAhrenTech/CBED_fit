@@ -1,7 +1,7 @@
 // Parity tests: the JS core must reproduce quantities stored in the Igor experiment.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { project, K, byId, link, maxDiff } from "./helpers.mjs";
+import { project, KIgor as K, byId, link, maxDiff } from "./helpers.mjs";
 import { buildMaterial, buildLayer, buildModel, findDelR, findInter, strainBasis, makeHkl0, computeDE1, simulateLines, findHklFromLine, freeParams, residuals, jacobian, parameterErrors, vary, modelState } from "../web/src/core/index.js";
 import { ffac } from "../web/src/core/physics.js";
 import { matmul, T, pinvLeft } from "../web/src/core/linalg.js";
