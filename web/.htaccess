@@ -1,0 +1,9 @@
+# Always revalidate app files so a deploy is picked up immediately (the host default is 8 days).
+# Unchanged files still answer 304 (ETag), so this costs little.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-cache, must-revalidate"
+</IfModule>

@@ -174,6 +174,8 @@ export class Viewer {
     const t = Math.max(0.3, Math.min(0.7, ((W / 2 - a[0]) * ux + (H / 2 - a[1]) * uy) / L2));
     const x = a[0] + ux * t, y = a[1] + uy * t;
     if (x < 0 || y < 0 || x > W || y > H) return;
-    this.g.font = "11px ui-monospace, monospace"; this.g.fillStyle = color; this.g.fillText(text, x + 4, y - 4);
+    const g = this.g; g.font = "bold 12px ui-monospace, monospace"; g.lineJoin = "round"; g.lineWidth = 3;
+    g.strokeStyle = "rgba(0,0,0,0.85)"; g.strokeText(text, x + 4, y - 4);   // dark halo keeps the text legible on bright and dark pixels
+    g.fillStyle = color; g.fillText(text, x + 4, y - 4);
   }
 }
